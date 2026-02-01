@@ -394,8 +394,28 @@ html, body {
     <a href="index.html" class="back-btn">Go Back to Website</a>
   </div>
 </div>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+
+  // Your Firebase Config (from Firebase Console)
+const firebaseConfig = {
+  apiKey: "AIzaSyBHVxex0_XFOSthkOcEj28UOtbW-3VswC0",
+  authDomain: "lead-data-98f5c.firebaseapp.com",
+  projectId: "lead-data-98f5c",
+  storageBucket: "lead-data-98f5c.firebasestorage.app",
+  messagingSenderId: "96601270081",
+  appId: "1:96601270081:web:b24e63c2daa85616bba3c0"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+
+// Initialize Firestore
+const db = firebase.firestore();
+
   function generateRadioRow(qstnId) {
     const options = [
       { label: "Never", value: 6 },
@@ -479,25 +499,23 @@ async function calculateLikertScore() {
   }
 
   // === Save to Database ===
-  try {
-    await fetch("https://software.aayushcare.com/api/resource/Lead", {
-      method: "POST",
-      headers: {
-        "Authorization": "token 7897c339c442e4b:01ff7013b92aa32",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        name: name,
-        phone_no: phone,
-        email: email,
-        source: source
-      })
-    });
+// === Save to Firebase Firestore ===
+try {
+  await db.collection("leads").add({
+    name: name,
+    phone: phone,
+    email: email,
+    source: source,
+    score: total,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
 
-  } catch (err) {
-    console.error("Save error:", err);
-    // Continue anyway
-  }
+  console.log("Data saved to Firebase");
+
+} catch (error) {
+  console.error("Firebase Error:", error);
+}
+
 
   // === Redirect to Grade Page ===
   window.location.href = redirectPage;
