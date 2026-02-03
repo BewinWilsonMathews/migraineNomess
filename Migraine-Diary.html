@@ -411,8 +411,6 @@
 
       </div>
     </div>
-
-      </div>
       <!-- MIGRAINE DIARY -->
       <div class="app" id="diaryApp">
         <header>
@@ -630,15 +628,17 @@
 
     });
 
-    function showSuccessToast() {
-    const toast = document.getElementById("successToast");
+function showSuccessToast() {
+  const toast = document.getElementById("successToast");
+  if (!toast) return;
 
-    toast.classList.add("show");
+  toast.classList.add("show");
 
-    setTimeout(() => {
-      toast.classList.remove("show");
-    }, 2500); // hide after 2.5s
-  }
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2500);
+}
+
 
     </script>
 
@@ -668,10 +668,12 @@
       const filters = JSON.stringify([["patient", "=", window.loggedInPatientId]]);
       const fields = JSON.stringify(["date","duration","intensity","pain_killer","pain_killer_details"]);
 
-      const url = `https://software.aayushcare.com/api/resource/Migraine%20Diary
-  ?filters=${encodeURIComponent(filters)}
-  &fields=${encodeURIComponent(fields)}
-  &limit_page_length=1000`;
+const url =
+  "https://software.aayushcare.com/api/resource/Migraine%20Diary" +
+  "?filters=" + encodeURIComponent(filters) +
+  "&fields=" + encodeURIComponent(fields) +
+  "&limit_page_length=1000";
+
 
 
       try {
