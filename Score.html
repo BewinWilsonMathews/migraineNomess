@@ -379,7 +379,14 @@ html, body {
   <input type="tel" id="phone" placeholder="Enter your Phone Number" required>
   <input type="email" id="email" placeholder="Enter your Email" required>
 
-  <button type="button" onclick="calculateLikertScore()">Submit & View Score</button>
+  <button
+  type="button"
+  id="submitBtn"
+  onclick="this.disabled=true; this.innerText='Submitting...'; calculateLikertScore();"
+>
+  Submit & View Score
+</button>
+
 </div>
 
 
@@ -394,28 +401,8 @@ html, body {
     <a href="index.html" class="back-btn">Go Back to Website</a>
   </div>
 </div>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-
-  // Your Firebase Config (from Firebase Console)
-const firebaseConfig = {
-  apiKey: "AIzaSyBHVxex0_XFOSthkOcEj28UOtbW-3VswC0",
-  authDomain: "lead-data-98f5c.firebaseapp.com",
-  projectId: "lead-data-98f5c",
-  storageBucket: "lead-data-98f5c.firebasestorage.app",
-  messagingSenderId: "96601270081",
-  appId: "1:96601270081:web:b24e63c2daa85616bba3c0"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-
-// Initialize Firestore
-const db = firebase.firestore();
-
   function generateRadioRow(qstnId) {
     const options = [
       { label: "Never", value: 6 },
@@ -468,10 +455,12 @@ const db = firebase.firestore();
   }
 
 async function calculateLikertScore() {
+
   const name = document.getElementById("name").value.trim();
-  const source = "Website"; // DO NOT change
   const phone = document.getElementById("phone").value.trim();
   const email = document.getElementById("email").value.trim();
+
+  const source = "Website"; // Default
 
   if (!name || !phone || !email) {
     alert("Please fill in all details.");
@@ -498,26 +487,48 @@ async function calculateLikertScore() {
     redirectPage = "G4.html";
   }
 
-  // === Save to Database ===
-// === Save to Firebase Firestore ===
-try {
-  await db.collection("leads").add({
-    name: name,
-    phone: phone,
-    email: email,
-    source: source,
-    score: total,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-  });
-
-  console.log("Data saved to Firebase");
-
-} catch (error) {
-  console.error("Firebase Error:", error);
-}
+  // === API DATA FORMAT ===
+const leadData = {
+  first_name: name,
+  source: source,
+  mobile_no: phone,
+  whatsapp_no: phone,     // Same as mobile
+  email: email,
+  custom_place: "NA"      // Always null
+};
 
 
-  // === Redirect to Grade Page ===
+  try {
+
+    const response = await fetch(
+      "https://software.aayushcare.com/api/resource/Lead",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "token 7897c339c442e4b:01ff7013b92aa32"
+        },
+        body: JSON.stringify(leadData)
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      console.error("API Error:", result);
+      alert("Error saving data. Please try again.");
+      return;
+    }
+
+    console.log("Lead saved successfully:", result);
+
+  } catch (error) {
+    console.error("Network Error:", error);
+    alert("Server not reachable. Please try later.");
+    return;
+  }
+
+  // === Redirect After Success ===
   window.location.href = redirectPage;
 }
 
