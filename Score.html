@@ -475,27 +475,35 @@ async function calculateLikertScore() {
     total += parseInt(selected.value);
   }
 
-  let redirectPage = "";
+let redirectPage = "";
+let migraineGrade = "";
 
-  if (total <= 49) {
-    redirectPage = "G1.html";
-  } else if (total <= 55) {
-    redirectPage = "G2.html";
-  } else if (total <= 59) {
-    redirectPage = "G3.html";
-  } else {
-    redirectPage = "G4.html";
-  }
+if (total <= 49) {
+  redirectPage = "G1.html";
+  migraineGrade = "G1";
+} else if (total <= 55) {
+  redirectPage = "G2.html";
+  migraineGrade = "G2";
+} else if (total <= 59) {
+  redirectPage = "G3.html";
+  migraineGrade = "G3";
+} else {
+  redirectPage = "G4.html";
+  migraineGrade = "G4";
+}
 
-  // === API DATA FORMAT ===
+
 const leadData = {
   first_name: name,
   source: source,
   mobile_no: phone,
-  whatsapp_no: phone,     // Same as mobile
+  whatsapp_no: phone,
   email: email,
-  custom_place: "NA"      // Always null
+  custom_place: "NA",
+  custom_migraine_score: total,
+  custom_migraine_grade: migraineGrade
 };
+
 
 
   try {
